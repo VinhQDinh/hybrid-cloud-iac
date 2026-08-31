@@ -69,33 +69,39 @@
 
 ---
 
-## 3. Step-by-Step Execution Plan
+## 3. Step-by-Step Execution Plan & Milestone Progress
 
-### Phase 1: Azure Landing Zone via Terraform
-1. **Azure Remote State:** Create a dedicated Resource Group, Storage Account, and Blob Container for remote Terraform state storage with state locking enabled.
-2. **Modular IaC:** Write Terraform modules to provision:
-   - A Hub Virtual Network (VNet) in Azure.
-   - An Azure Virtual Network Gateway (Route-based IPsec VPN).
-   - An Azure Key Vault for central secret management.
-   - A Log Analytics Workspace for unified logging.
+### Phase 1: Azure Landing Zone via Terraform (In Progress)
+- [x] **Azure Remote State:** Provisioned resource group (`rg-terraform-state-mgmt`), storage account (`sttfstatehybrid20c19b`), and container (`tfstate-hybrid-enterprise`) with blob versioning enabled.
+- [x] **Backend & Providers:** Configured `backend/backend.tf` (AzureAD authentication) and `providers.tf` (AzureRM, Proxmox, Random).
+- [ ] **Hub Network Module (`modules/azure_hub`):**
+  - [x] Module Inputs & CIDR variables (`modules/azure_hub/variables.tf`)
+  - [x] Virtual Network & Subnets (`modules/azure_hub/main.tf`)
+  - [x] Zero-Trust Network Security Group (`modules/azure_hub/main.tf`)
+  - [ ] Module Outputs (`modules/azure_hub/outputs.tf`)
+- [ ] **Root Dev Environment (`environments/dev`):** Instantiate and validate `terraform plan`.
+- [ ] **VPN Gateway & Secret Management:**
+  - [ ] Azure Virtual Network Gateway (Route-based IPsec VPN).
+  - [ ] Azure Key Vault for central secret management.
+  - [ ] Log Analytics Workspace for unified diagnostics.
 
 ### Phase 2: Hybrid Networking (opnSense <-> Azure)
-1. Configure an **IPsec Site-to-Site VPN tunnel** on opnSense targeting the Azure Gateway Public IP.
-2. Establish private route tables so Proxmox subnets communicate directly with Azure private endpoints over encrypted traffic without traversing the public internet.
+- [ ] Configure **IPsec Site-to-Site VPN tunnel** on opnSense targeting Azure Gateway Public IP.
+- [ ] Establish private route tables between Proxmox subnets (`192.168.1.0/24`) and Azure Hub (`10.100.0.0/16`).
 
 ### Phase 3: Automated On-Premises K8s Cluster Build
-1. **Cloud-Init Template:** Create an automated Ubuntu Server or Talos Linux VM template on Proxmox using Cloud-Init.
-2. **Proxmox Terraform Provider:** Use Terraform to automatically clone and provision 3 VMs (1 Control Plane, 2 Worker Nodes) across your 3-node Proxmox cluster.
-3. **Cluster Bootstrap:** Bootstrap a Kubernetes cluster (K3s or Talos) using Ansible or talosctl.
+- [ ] **Cloud-Init Template:** Build Ubuntu Server / Talos Linux template on Proxmox.
+- [ ] **Proxmox Terraform Provider:** Automate VM provisioning across 3 Proxmox nodes.
+- [ ] **Cluster Bootstrap:** Bootstrap highly available K8s cluster (K3s / Talos).
 
 ### Phase 4: Azure Arc Integration & GitOps
-1. **Arc Onboarding:** Execute `az connectedk8s connect` to register your local Proxmox Kubernetes cluster into your Microsoft Azure tenant.
-2. **Centralized Telemetry:** Attach Azure Monitor Container Insights to stream pod logs and metrics directly into your Log Analytics workspace.
-3. **GitOps Deployment:** Use Azure Arc's Flux v2 extension pointing to a GitHub repository to automatically reconcile container workloads to your cluster.
+- [ ] **Arc Onboarding:** Connect local Kubernetes cluster to Azure Arc control plane (`az connectedk8s connect`).
+- [ ] **Centralized Telemetry:** Stream container logs and metrics into Azure Log Analytics.
+- [ ] **GitOps Deployment:** Reconcile workloads via Azure Arc Flux v2 extension.
 
-### Phase 5: Entra ID Authentication
-1. Register an Application in **Microsoft Entra ID**.
-2. Configure Kubernetes OIDC flags (or Azure Arc RBAC) to mandate Microsoft credential authentication for kubectl access.
+### Phase 5: Entra ID Authentication & Zero Trust
+- [ ] Register application in **Microsoft Entra ID**.
+- [ ] Enforce Azure RBAC & OIDC authentication for `kubectl` cluster access.
 
 ---
 
